@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -36,7 +37,7 @@ export class MpesaService {
       },
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return response.data.access_token;
   }
 
@@ -85,19 +86,19 @@ export class MpesaService {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return response.data;
-    } catch (error: any) {
-      console.log('💥 FULL MPESA ERROR:');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      console.log(error.response?.data);
-      throw new Error('Erreur lors du STK Push');
-    }
-    // catch (error: unknown) {
-    //   if (error instanceof Error) {
-    //     console.error('💥 STK Push Error:', error.message);
-    //   } else {
-    //     console.error('💥 STK Push Error:', error);
-    //   }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error('MPESA AXIOS ERROR:', error.response?.data);
+        throw new Error(JSON.stringify(error.response?.data));
+      }
 
+      console.error('MPESA UNKNOWN ERROR:', error);
+      throw new Error('Erreur inconnue lors du STK Push');
+    }
+    //  catch (error: any) {
+    //   console.log('💥 FULL MPESA ERROR:');
+    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    //   console.log(error.response?.data);
     //   throw new Error('Erreur lors du STK Push');
     // }
   }
